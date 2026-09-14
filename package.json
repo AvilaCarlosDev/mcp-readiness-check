@@ -1,21 +1,53 @@
 {
-  "name": "mcp-doctor",
-  "version": "0.1.0",
-  "description": "A bilingual CLI doctor for MCP servers: validate, inspect, smoke test, and report.",
-  "main": "index.js",
-  "scripts": {
-    "test": "vitest run",
-    "build": "tsc",
-    "dev": "tsx src/cli.ts",
-    "lint": "tsc --noEmit",
-    "start": "node dist/cli.js"
+  "name": "@avilacarlosdev/mcp-doctor",
+  "version": "0.2.0",
+  "description": "Bilingual CLI doctor for MCP servers: connect, inspect tools, validate schemas and generate JSON/Markdown reports before wiring a server into your agent.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "developer-tools",
+    "diagnostics",
+    "validation",
+    "agents",
+    "llm-tooling",
+    "stdio"
+  ],
+  "homepage": "https://github.com/AvilaCarlosDev/mcp-doctor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AvilaCarlosDev/mcp-doctor.git"
   },
-  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/AvilaCarlosDev/mcp-doctor/issues"
+  },
   "author": "Carlos Avila <https://github.com/AvilaCarlosDev>",
   "license": "MIT",
   "type": "module",
   "bin": {
     "mcp-doctor": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "mcp-doctor.config.example.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "lint": "tsc --noEmit",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
