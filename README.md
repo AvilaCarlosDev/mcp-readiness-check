@@ -1,84 +1,79 @@
 # mcp-doctor 🩺
 
-> A bilingual CLI doctor for MCP servers: validate, inspect, smoke test, and report before connecting them to your agents.
+> Connect to an MCP server, inspect what it actually exposes, and get a readable report — before you wire it into an agent.
 
+[![npm](https://img.shields.io/npm/v/@avilacarlosdev/mcp-doctor?color=cb3837&logo=npm)](https://www.npmjs.com/package/@avilacarlosdev/mcp-doctor)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-42ffa1.svg)](package.json)
 [![MCP](https://img.shields.io/badge/MCP-compatible-ff8c69.svg)](https://modelcontextprotocol.io/)
 
-## Why
+## The problem
 
-The Model Context Protocol ecosystem is growing fast. More tools means more integration issues:
+When an MCP server misbehaves, the agent rarely tells you why. You get a tool that never fires, a schema the model cannot fill, or a stdio server that corrupts its own JSON-RPC stream by logging to stdout — and all you see is the agent quietly doing nothing.
 
-- servers that fail during initialization,
-- missing or weak tool descriptions,
-- invalid or confusing schemas,
-- stdout/stderr mistakes in stdio servers,
-- unsafe tool annotations,
-- no clear report for humans reviewing the server.
+`mcp-doctor` connects to the server yourself, over the same transport an agent would use, and tells you what it found.
 
-`mcp-doctor` gives developers a fast, repeatable way to inspect MCP servers from the terminal.
+## What it catches
 
-## Features
-
-- Connects to MCP servers through stdio.
-- Lists tools exposed by the server.
-- Validates basic tool catalog quality.
-- Checks tool names, duplicate names, descriptions and schemas.
-- Adds security-oriented advisories for MCP tool usage.
-- Captures recent stderr output for debugging.
-- Prints a clean terminal report.
-- Exports JSON and Markdown reports.
-- Includes English and Spanish documentation.
+| Check | Why it matters |
+|---|---|
+| Connection | The server never initializes — the failure most often mistaken for an agent bug. |
+| Capabilities | The server connects but advertises nothing usable. |
+| Duplicate names | Two tools share a name; the agent can only ever reach one. |
+| Name format | Names outside `[a-zA-Z0-9_-]{1,128}` break some clients. |
+| Descriptions | Missing or 3-word descriptions are why a model never picks the tool. |
+| Input schemas | A schema that is not a JSON Schema object cannot be filled correctly. |
+| Annotations | A tool marked both `readOnlyHint` and `destructiveHint` misleads agents and reviewers. |
+| stderr capture | Surfaces the stack trace the agent swallowed. |
 
 ## Install
 
 ```bash
-npm install -g mcp-doctor
+npm install -g @avilacarlosdev/mcp-doctor
 ```
 
-For local development:
+> **Note:** the unscoped `mcp-doctor` name on npm belongs to a different project. Always install the scoped package above.
+
+Run it without installing:
 
 ```bash
-git clone https://github.com/AvilaCarlosDev/mcp-doctor.git
-cd mcp-doctor
-npm install
-npm run build
+npx @avilacarlosdev/mcp-doctor check --cmd node --args server.mjs
 ```
 
 ## Quick start
 
-Run against a command directly:
-
 ```bash
+# point it at any stdio MCP server
 mcp-doctor check --cmd node --args examples/echo-server.mjs
 ```
 
-Generate a config file:
+```
+🩺 MCP Doctor Report
+──────────────────────────────────────────────────────────
+Status: healthy
+Target: node examples/echo-server.mjs
+Tools:  1
+Checks: 5 passed · 0 warnings · 0 failed
 
-```bash
-mcp-doctor init
+Tools
+  echo — Return the provided message. Useful for smoke testing MCP clients.
+
+Checks
+  ✅ Connection: MCP server initialized successfully.
+  ✅ Capabilities: Server capabilities were received during initialization.
+  ✅ Tools available: The server exposes 1 tool.
+  ✅ Unique tool names: All tool names are unique.
+  ✅ Tool descriptions: All tools include useful descriptions.
+  ℹ️  Stdio stdout hygiene: For stdio MCP servers, logs should go to stderr.
+  ℹ️  Review tool side effects: Add accurate readOnlyHint / destructiveHint annotations.
 ```
 
-Run a named server from config:
+## Using a config file
 
 ```bash
-mcp-doctor check --server echo
+mcp-doctor init                    # writes mcp-doctor.config.json
+mcp-doctor check --server echo     # run a named server
 ```
-
-Export a Markdown report:
-
-```bash
-mcp-doctor check --server echo --markdown report.md
-```
-
-Export JSON:
-
-```bash
-mcp-doctor check --server echo --json
-```
-
-## Example config
 
 ```json
 {
@@ -92,46 +87,60 @@ mcp-doctor check --server echo --json
 }
 ```
 
-## What mcp-doctor checks
+## Reports
 
-| Check | Purpose |
-|---|---|
-| Connection | Verifies the server initializes through MCP. |
-| Capabilities | Confirms capabilities are returned. |
-| Tool catalog | Lists exposed tools. |
-| Unique names | Detects duplicate tool names. |
-| Name format | Warns about names outside a safe MCP-friendly pattern. |
-| Descriptions | Warns when tool descriptions are missing or too short. |
-| Input schemas | Verifies input schemas are objects and structurally sane. |
-| Annotations | Warns about confusing side-effect metadata. |
-| Security notes | Reminds maintainers about stdout hygiene and destructive tools. |
+```bash
+mcp-doctor check --server echo --json              # machine-readable
+mcp-doctor check --server echo --markdown out.md  # reviewable artifact
+```
 
-## Exit codes
+See [report.example.md](report.example.md) for a full Markdown report.
 
-- `0`: no failed checks.
-- `1`: at least one failed check or the doctor run failed.
+## In CI
 
-Warnings do not fail the command by default.
+Exit code is `1` when any check fails, so it gates a pipeline as-is. Warnings do not fail the run.
 
-## Roadmap
+```yaml
+- name: Validate MCP server
+  run: npx @avilacarlosdev/mcp-doctor check --cmd node --args dist/server.js
+```
 
-- Streamable HTTP transport.
-- Tool smoke tests with user-provided arguments.
-- JSON Schema 2020-12 validation with detailed diagnostics.
-- Resource and prompt inspection.
-- GitHub Action mode.
-- HTML report.
-- Security profile for remote MCP servers.
+## Options
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--cmd <command>` | — | Server command to run over stdio |
+| `--args <args...>` | — | Arguments for `--cmd` |
+| `--server <name>` | — | Named server from the config file |
+| `--config <path>` | `mcp-doctor.config.json` | Config file location |
+| `--cwd <path>` | current dir | Working directory for the server process |
+| `--timeout <ms>` | `15000` | Timeout per MCP operation |
+| `--json` | off | Print the report as JSON |
+| `--markdown <path>` | — | Write a Markdown report |
+| `--no-security` | off | Skip security advisories |
+
+## Scope
+
+Today: **stdio transport only.** Streamable HTTP, argument-driven smoke tests, JSON Schema 2020-12 diagnostics, and resource/prompt inspection are on the roadmap, not implemented.
+
+## Development
+
+```bash
+git clone https://github.com/AvilaCarlosDev/mcp-doctor.git
+cd mcp-doctor
+npm install
+npm test        # vitest
+npm run build   # tsc
+npm run dev -- check --cmd node --args examples/echo-server.mjs
+```
 
 ## Documentation
 
 - [English guide](docs/en/guide.md)
 - [Guía en español](docs/es/guia.md)
 
-## Author
-
-Built by [Carlos Avila](https://github.com/AvilaCarlosDev) — Developer 🇻🇪
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Built by [Carlos Avila](https://github.com/AvilaCarlosDev).
