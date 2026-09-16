@@ -24,17 +24,17 @@ MCP Readiness Check launches a server over stdio, performs a real MCP handshake,
 
 ## Install
 
-> **Release status:** the npm package has not been published yet. Use the repository while the first release is prepared.
-
 ```bash
-git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
-cd mcp-readiness-check
-npm ci
-npm run build
-npm link
+npm install --global @avilacarlosdev/mcp-readiness-check
 ```
 
-The planned package and executable are both named `@avilacarlosdev/mcp-readiness-check` and `mcp-readiness-check`.
+The package is `@avilacarlosdev/mcp-readiness-check`; the installed executable is `mcp-readiness-check`.
+
+Run without a global installation:
+
+```bash
+npx @avilacarlosdev/mcp-readiness-check --help
+```
 
 ## Quick start
 

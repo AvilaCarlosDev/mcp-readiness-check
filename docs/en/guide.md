@@ -14,7 +14,13 @@
 
 Supported schema dialects are draft-07, 2019-09, and 2020-12. Unsupported dialects fail explicitly.
 
-## Local installation
+## Installation
+
+```bash
+npm install --global @avilacarlosdev/mcp-readiness-check
+```
+
+For local development:
 
 ```bash
 git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
@@ -26,11 +32,11 @@ npm run build
 ## Usage
 
 ```bash
-npm run dev -- check --cmd node --args examples/echo-server.mjs
-npm run dev -- init
-npm run dev -- check --server filesystem
-npm run dev -- check --server filesystem --json
-npm run dev -- check --server filesystem --markdown report.md
+mcp-readiness-check check --cmd node --args examples/echo-server.mjs
+mcp-readiness-check init
+mcp-readiness-check check --server filesystem
+mcp-readiness-check check --server filesystem --json
+mcp-readiness-check check --server filesystem --markdown report.md
 ```
 
 ## Security interpretation
