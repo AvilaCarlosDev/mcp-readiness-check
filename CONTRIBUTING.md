@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving `mcp-doctor`.
+Thanks for your interest in improving `mcp-readiness-check`.
 
 ## Development
 

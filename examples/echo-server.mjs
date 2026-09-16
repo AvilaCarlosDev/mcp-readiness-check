@@ -4,7 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 const server = new McpServer({
-	name: "mcp-doctor-echo-example",
+	name: "mcp-readiness-check-echo-example",
 	version: "0.1.0",
 });
 

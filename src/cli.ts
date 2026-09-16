@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { Command } from "commander";
 import ora from "ora";
-import { runDoctor } from "./core/doctor.js";
+import { runReadinessCheck } from "./core/readiness.js";
 import { targetFromCommand, targetFromConfig } from "./core/config.js";
 import { printConsoleReport } from "./reporters/console.js";
 import { toMarkdown } from "./reporters/markdown.js";
@@ -11,14 +11,14 @@ import { packageVersion } from "./utils/package.js";
 const program = new Command();
 
 program
-	.name("mcp-doctor")
-	.description("Diagnose MCP servers: connect, inspect tools, validate schemas, and generate reports.")
+	.name("mcp-readiness-check")
+	.description("Verify MCP server readiness: capabilities, catalogs, schemas, static security, and reports.")
 	.version(packageVersion());
 
 program
 	.command("check")
 	.description("Run a full diagnostic against an MCP server")
-	.option("-c, --config <path>", "Path to mcp-doctor.config.json")
+	.option("-c, --config <path>", "Path to mcp-readiness.config.json")
 	.option("-s, --server <name>", "Server name from config file")
 	.option("--cmd <command>", "Server command to run through stdio")
 	.option("--args <args...>", "Arguments for --cmd")
@@ -26,7 +26,7 @@ program
 	.option("--timeout <ms>", "Timeout per MCP operation", "15000")
 	.option("--json", "Print JSON report")
 	.option("--markdown <path>", "Write Markdown report to a file")
-	.option("--no-security", "Disable security advisory checks")
+	.option("--no-security-audit", "Disable the static security audit")
 	.action(async (options) => {
 		try {
 			const target = options.server
@@ -37,10 +37,13 @@ program
 				throw new Error("Provide either --server from config or --cmd <command>.");
 			}
 
-			const spinner = ora("Running MCP diagnostics...").start();
-			const report = await runDoctor(target, {
-				timeoutMs: Number(options.timeout),
-				includeSecurityChecks: options.security,
+			const timeoutMs = Number(options.timeout);
+			if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new Error("--timeout must be a positive number of milliseconds.");
+
+			const spinner = ora("Running MCP readiness checks...").start();
+			const report = await runReadinessCheck(target, {
+				timeoutMs,
+				includeSecurityAudit: options.securityAudit,
 			});
 			spinner.stop();
 
@@ -64,9 +67,15 @@ program
 
 program
 	.command("init")
-	.description("Create an example mcp-doctor.config.json")
-	.option("-o, --output <path>", "Output path", "mcp-doctor.config.json")
+	.description("Create an example mcp-readiness.config.json")
+	.option("-o, --output <path>", "Output path", "mcp-readiness.config.json")
+	.option("--force", "Overwrite an existing file")
 	.action((options) => {
+		if (existsSync(options.output) && !options.force) {
+			console.error(`Refusing to overwrite existing file: ${options.output}. Use --force to replace it.`);
+			process.exitCode = 1;
+			return;
+		}
 		const example = {
 			servers: {
 				filesystem: {

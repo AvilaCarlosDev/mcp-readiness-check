@@ -1,9 +1,10 @@
-import type { DoctorCheck, ToolInfo } from "./types.js";
+import { checkToolSchemas } from "./schema.js";
+import type { AuditCheck, ToolInfo } from "./types.js";
 
 const TOOL_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,128}$/;
 
-export function checkToolCatalog(tools: ToolInfo[]): DoctorCheck[] {
-	const checks: DoctorCheck[] = [];
+export function checkToolCatalog(tools: ToolInfo[]): AuditCheck[] {
+	const checks: AuditCheck[] = [];
 
 	if (tools.length === 0) {
 		checks.push({
@@ -76,53 +77,18 @@ export function checkToolCatalog(tools: ToolInfo[]): DoctorCheck[] {
 	}
 
 	for (const tool of tools) {
-		checks.push(...checkToolSchema(tool));
+		checks.push(...checkToolSchemas(tool));
 		checks.push(...checkToolAnnotations(tool));
 	}
 
 	return checks;
 }
 
-function checkToolSchema(tool: ToolInfo): DoctorCheck[] {
-	const checks: DoctorCheck[] = [];
-	const schema = tool.inputSchema as Record<string, unknown> | undefined;
-
-	if (!schema || typeof schema !== "object") {
-		checks.push({
-			id: `tool.${tool.name}.input_schema.missing`,
-			title: `Input schema: ${tool.name}`,
-			severity: "fail",
-			message: "Tool inputSchema is missing or not an object.",
-		});
-		return checks;
-	}
-
-	if (schema.type !== "object") {
-		checks.push({
-			id: `tool.${tool.name}.input_schema.type`,
-			title: `Input schema type: ${tool.name}`,
-			severity: "warn",
-			message: "MCP tool inputSchema should normally be a JSON Schema object with type: object.",
-		});
-	}
-
-	if (schema.properties && typeof schema.properties !== "object") {
-		checks.push({
-			id: `tool.${tool.name}.input_schema.properties`,
-			title: `Input schema properties: ${tool.name}`,
-			severity: "fail",
-			message: "inputSchema.properties must be an object when provided.",
-		});
-	}
-
-	return checks;
-}
-
-function checkToolAnnotations(tool: ToolInfo): DoctorCheck[] {
+function checkToolAnnotations(tool: ToolInfo): AuditCheck[] {
 	const annotations = tool.annotations;
 	if (!annotations) return [];
 
-	const checks: DoctorCheck[] = [];
+	const checks: AuditCheck[] = [];
 	if (annotations.destructiveHint === true && annotations.readOnlyHint === true) {
 		checks.push({
 			id: `tool.${tool.name}.annotations.conflict`,
@@ -133,21 +99,4 @@ function checkToolAnnotations(tool: ToolInfo): DoctorCheck[] {
 	}
 
 	return checks;
-}
-
-export function securityChecks(): DoctorCheck[] {
-	return [
-		{
-			id: "security.stdout",
-			title: "Stdio stdout hygiene",
-			severity: "info",
-			message: "For stdio MCP servers, logs should go to stderr. stdout must be reserved for JSON-RPC messages.",
-		},
-		{
-			id: "security.tool_review",
-			title: "Review tool side effects",
-			severity: "info",
-			message: "Review tools with destructive side effects and add accurate annotations such as readOnlyHint, destructiveHint and idempotentHint.",
-		},
-	];
 }
