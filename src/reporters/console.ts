@@ -1,5 +1,5 @@
 import pc from "picocolors";
-import type { DoctorReport, Severity } from "../core/types.js";
+import type { ReadinessReport, Severity } from "../core/types.js";
 
 const iconBySeverity: Record<Severity, string> = {
 	pass: "✅",
@@ -8,14 +8,15 @@ const iconBySeverity: Record<Severity, string> = {
 	fail: "❌",
 };
 
-export function printConsoleReport(report: DoctorReport): void {
+export function printConsoleReport(report: ReadinessReport): void {
 	const status = report.summary.status === "healthy" ? pc.green("healthy") : report.summary.status === "warning" ? pc.yellow("warning") : pc.red("failed");
 
-	console.log(pc.bold("\n🩺 MCP Doctor Report"));
+	console.log(pc.bold("\nMCP Readiness Report"));
 	console.log(pc.dim("─".repeat(60)));
 	console.log(`Status: ${status}`);
 	console.log(`Target: ${pc.cyan([report.target.command, ...report.target.args].join(" "))}`);
 	console.log(`Tools:  ${report.summary.tools}`);
+	console.log(`Resources: ${report.summary.resources} · Prompts: ${report.summary.prompts}`);
 	console.log(`Checks: ${pc.green(`${report.summary.passed} passed`)} · ${pc.yellow(`${report.summary.warnings} warnings`)} · ${pc.red(`${report.summary.failed} failed`)}`);
 
 	if (report.tools.length > 0) {
@@ -23,6 +24,16 @@ export function printConsoleReport(report: DoctorReport): void {
 		for (const tool of report.tools) {
 			console.log(`  ${pc.cyan(tool.name)}${tool.description ? pc.dim(` — ${tool.description}`) : ""}`);
 		}
+	}
+
+	if (report.resources.length > 0) {
+		console.log(pc.bold("\nResources"));
+		for (const resource of report.resources) console.log(`  ${pc.cyan(resource.name)}${resource.description ? pc.dim(` — ${resource.description}`) : ""}`);
+	}
+
+	if (report.prompts.length > 0) {
+		console.log(pc.bold("\nPrompts"));
+		for (const prompt of report.prompts) console.log(`  ${pc.cyan(prompt.name)}${prompt.description ? pc.dim(` — ${prompt.description}`) : ""}`);
 	}
 
 	console.log(pc.bold("\nChecks"));

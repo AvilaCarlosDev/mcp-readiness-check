@@ -1,62 +1,48 @@
-# mcp-doctor Guide 🩺
+# MCP Readiness Check guide
 
-`mcp-doctor` is a CLI for diagnosing MCP servers before connecting them to AI agents.
+`mcp-readiness-check` verifies a stdio MCP server before it is connected to an agent.
 
-## Goal
+## What is verified
 
-Help developers and maintainers quickly answer:
+- real MCP initialization and server identity;
+- every page of advertised tools, resources, and prompts;
+- capability declarations against reachable catalogs;
+- tool names, descriptions, and annotations;
+- input and output schemas using their declared JSON Schema dialect;
+- static security indicators in server instructions, tool metadata, and schemas;
+- secret-safe console, JSON, and Markdown reports.
 
-- Does the MCP server start correctly?
-- Does it expose tools?
-- Are tool names unique and safe?
-- Are descriptions useful for agents?
-- Are schemas well-formed?
-- Are there security or design warnings?
+Supported schema dialects are draft-07, 2019-09, and 2020-12. Unsupported dialects fail explicitly.
 
 ## Local installation
 
 ```bash
-git clone https://github.com/AvilaCarlosDev/mcp-doctor.git
-cd mcp-doctor
-npm install
+git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
+cd mcp-readiness-check
+npm ci
 npm run build
 ```
 
-## Quick usage
+## Usage
 
 ```bash
 npm run dev -- check --cmd node --args examples/echo-server.mjs
-```
-
-Or with config:
-
-```bash
 npm run dev -- init
-npm run dev -- check --server echo
+npm run dev -- check --server filesystem
+npm run dev -- check --server filesystem --json
+npm run dev -- check --server filesystem --markdown report.md
 ```
 
-## Reports
+## Security interpretation
 
-### Markdown
+The security audit is evidence-based static analysis. It checks advertised metadata for prompt-injection language, embedded credential values, sensitive inputs, and risky annotation inconsistencies. Heuristic findings require human review.
 
-```bash
-npm run dev -- check --server echo --markdown report.md
-```
+It does not execute tools or claim to be a penetration test. Use `--no-security-audit` to disable this layer.
 
-### JSON
+All supplied environment values and common credential patterns are redacted from reports. Review every artifact before sharing it because custom secret formats can exist.
 
-```bash
-npm run dev -- check --server echo --json
-```
+## Automation
 
-## MCP best practices covered
+Failed checks return exit code `1`. Warnings remain visible but return `0`, making the command suitable for CI without treating every heuristic as a release blocker.
 
-1. **Clean stdout:** stdio servers must reserve stdout for JSON-RPC messages. Logs should go to stderr.
-2. **Descriptive tools:** agents make better decisions when each tool clearly explains what it does.
-3. **Clear schemas:** `inputSchema` should be a valid and understandable JSON Schema object.
-4. **Honest annotations:** destructive tools should be marked as destructive; read-only tools should be marked as read-only.
-5. **Reproducible reports:** every diagnosis can be exported for issues, PRs, or documentation.
-
-## Philosophy
-
-This project does not replace the MCP Inspector. It complements the workflow with a fast, automatable diagnostic that can eventually run in CI.
+This project complements the interactive MCP Inspector; it does not replace it.

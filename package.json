@@ -1,38 +1,43 @@
 {
-  "name": "@avilacarlosdev/mcp-doctor",
-  "version": "0.2.0",
-  "description": "Bilingual CLI doctor for MCP servers: connect, inspect tools, validate schemas and generate JSON/Markdown reports before wiring a server into your agent.",
+  "name": "@avilacarlosdev/mcp-readiness-check",
+  "version": "0.3.0",
+  "description": "Verify stdio MCP server capabilities, paginated catalogs, JSON Schemas, and static security before connecting an agent.",
   "keywords": [
     "mcp",
     "model-context-protocol",
     "cli",
     "developer-tools",
-    "diagnostics",
+    "readiness",
+    "security-audit",
+    "json-schema",
     "validation",
     "agents",
     "llm-tooling",
     "stdio"
   ],
-  "homepage": "https://github.com/AvilaCarlosDev/mcp-doctor#readme",
+  "homepage": "https://github.com/AvilaCarlosDev/mcp-readiness-check#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AvilaCarlosDev/mcp-doctor.git"
+    "url": "git+https://github.com/AvilaCarlosDev/mcp-readiness-check.git"
   },
   "bugs": {
-    "url": "https://github.com/AvilaCarlosDev/mcp-doctor/issues"
+    "url": "https://github.com/AvilaCarlosDev/mcp-readiness-check/issues"
   },
   "author": "Carlos Avila <https://github.com/AvilaCarlosDev>",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "mcp-doctor": "./dist/cli.js"
+    "mcp-readiness-check": "dist/cli.js"
   },
   "files": [
     "dist",
     "docs",
     "examples",
-    "mcp-doctor.config.example.json",
+    "mcp-readiness.config.example.json",
+    "report.example.md",
     "README.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "engines": {
@@ -43,14 +48,18 @@
   },
   "scripts": {
     "test": "vitest run",
-    "build": "tsc",
+    "clean": "node scripts/clean.mjs",
+    "build": "npm run clean && tsc",
+    "pack:check": "npm run build && node scripts/check-pack.mjs",
     "dev": "tsx src/cli.ts",
     "lint": "tsc --noEmit",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test && node scripts/check-pack.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "commander": "^14.0.3",
     "ora": "^9.4.0",
     "picocolors": "^1.1.1",

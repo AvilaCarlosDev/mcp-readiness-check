@@ -15,9 +15,9 @@ const ConfigSchema = z.object({
 	),
 });
 
-export type DoctorConfig = z.infer<typeof ConfigSchema>;
+export type ReadinessConfig = z.infer<typeof ConfigSchema>;
 
-export function loadConfig(path = "mcp-doctor.config.json"): DoctorConfig {
+export function loadConfig(path = "mcp-readiness.config.json"): ReadinessConfig {
 	const fullPath = resolve(path);
 	if (!existsSync(fullPath)) {
 		throw new Error(`Config file not found: ${fullPath}`);

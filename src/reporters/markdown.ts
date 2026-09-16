@@ -1,13 +1,15 @@
-import type { DoctorReport } from "../core/types.js";
+import type { ReadinessReport } from "../core/types.js";
 
-export function toMarkdown(report: DoctorReport): string {
+export function toMarkdown(report: ReadinessReport): string {
 	const lines: string[] = [];
-	lines.push("# MCP Doctor Report");
+	lines.push("# MCP Readiness Report");
 	lines.push("");
 	lines.push(`- **Status:** ${report.summary.status}`);
 	lines.push(`- **Created at:** ${report.createdAt}`);
 	lines.push(`- **Target:** \`${[report.target.command, ...report.target.args].join(" ")}\``);
 	lines.push(`- **Tools:** ${report.summary.tools}`);
+	lines.push(`- **Resources:** ${report.summary.resources}`);
+	lines.push(`- **Prompts:** ${report.summary.prompts}`);
 	lines.push(`- **Checks:** ${report.summary.passed} passed · ${report.summary.warnings} warnings · ${report.summary.failed} failed`);
 	lines.push("");
 
@@ -22,6 +24,18 @@ export function toMarkdown(report: DoctorReport): string {
 		lines.push("```json");
 		lines.push(JSON.stringify(tool.inputSchema ?? {}, null, 2));
 		lines.push("```");
+		lines.push("");
+	}
+
+	if (report.resources.length > 0) {
+		lines.push("## Resources", "");
+		for (const resource of report.resources) lines.push(`- **${resource.name}** — ${resource.uri}${resource.description ? ` — ${resource.description}` : ""}`);
+		lines.push("");
+	}
+
+	if (report.prompts.length > 0) {
+		lines.push("## Prompts", "");
+		for (const prompt of report.prompts) lines.push(`- **${prompt.name}**${prompt.description ? ` — ${prompt.description}` : ""}`);
 		lines.push("");
 	}
 

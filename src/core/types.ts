@@ -1,6 +1,6 @@
 export type Severity = "pass" | "info" | "warn" | "fail";
 
-export type DoctorCheck = {
+export type AuditCheck = {
 	id: string;
 	title: string;
 	severity: Severity;
@@ -16,6 +16,26 @@ export type ToolInfo = {
 	annotations?: Record<string, unknown>;
 };
 
+export type ResourceInfo = {
+	uri: string;
+	name: string;
+	description?: string;
+	mimeType?: string;
+};
+
+export type PromptInfo = {
+	name: string;
+	description?: string;
+	arguments?: Array<{ name: string; description?: string; required?: boolean }>;
+};
+
+export type ServerInfo = {
+	name: string;
+	version: string;
+	description?: string;
+	websiteUrl?: string;
+};
+
 export type ServerTarget = {
 	command: string;
 	args: string[];
@@ -23,13 +43,13 @@ export type ServerTarget = {
 	env?: Record<string, string>;
 };
 
-export type DoctorOptions = {
+export type ReadinessOptions = {
 	timeoutMs: number;
-	includeSecurityChecks: boolean;
+	includeSecurityAudit: boolean;
 };
 
-export type DoctorReport = {
-	tool: "mcp-doctor";
+export type ReadinessReport = {
+	tool: "mcp-readiness-check";
 	version: string;
 	createdAt: string;
 	target: ServerTarget;
@@ -39,11 +59,17 @@ export type DoctorReport = {
 		warnings: number;
 		failed: number;
 		tools: number;
+		resources: number;
+		prompts: number;
 	};
 	server?: {
+		info?: ServerInfo;
 		capabilities?: unknown;
+		instructions?: string;
 	};
 	tools: ToolInfo[];
-	checks: DoctorCheck[];
+	resources: ResourceInfo[];
+	prompts: PromptInfo[];
+	checks: AuditCheck[];
 	stderr: string[];
 };
