@@ -14,7 +14,13 @@
 
 Los dialectos soportados son draft-07, 2019-09 y 2020-12. Un dialecto no soportado falla de forma explícita.
 
-## Instalación local
+## Instalación
+
+```bash
+npm install --global @avilacarlosdev/mcp-readiness-check
+```
+
+Para desarrollo local:
 
 ```bash
 git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
@@ -26,11 +32,11 @@ npm run build
 ## Uso
 
 ```bash
-npm run dev -- check --cmd node --args examples/echo-server.mjs
-npm run dev -- init
-npm run dev -- check --server filesystem
-npm run dev -- check --server filesystem --json
-npm run dev -- check --server filesystem --markdown report.md
+mcp-readiness-check check --cmd node --args examples/echo-server.mjs
+mcp-readiness-check init
+mcp-readiness-check check --server filesystem
+mcp-readiness-check check --server filesystem --json
+mcp-readiness-check check --server filesystem --markdown report.md
 ```
 
 ## Interpretación de seguridad
