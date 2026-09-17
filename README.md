@@ -9,6 +9,15 @@
 
 MCP Readiness Check launches a server over stdio, performs a real MCP handshake, inventories every advertised catalog page, validates tool contracts, runs a static security audit, and produces reviewable reports.
 
+![MCP Readiness Check running against its example server](docs/assets/mcp-readiness-check-demo.png)
+
+<details>
+<summary>Watch the CLI demo</summary>
+
+![Animated MCP Readiness Check CLI demo](docs/assets/mcp-readiness-check-demo.gif)
+
+</details>
+
 ## Verified checks
 
 | Area | What is checked |
@@ -143,8 +152,11 @@ npm ci
 npm test
 npm run build
 npm run pack:check
+npm run demo:assets:portable
 npm run dev -- check --cmd node --args examples/echo-server.mjs
 ```
+
+The README media was captured from a real Kitty session running the CLI. `npm run demo:assets:portable` generates separate portable assets from the same real CLI output when a compositor capture is unavailable. It requires Google Chrome and ImageMagick locally; neither is needed to build or use the package.
 
 ## Documentation
 

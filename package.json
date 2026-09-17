@@ -51,6 +51,7 @@
     "clean": "node scripts/clean.mjs",
     "build": "npm run clean && tsc",
     "pack:check": "npm run build && node scripts/check-pack.mjs",
+    "demo:assets:portable": "npm run build && node scripts/generate-demo-assets.mjs",
     "dev": "tsx src/cli.ts",
     "lint": "tsc --noEmit",
     "start": "node dist/cli.js",
