@@ -38,7 +38,8 @@
     "README.md",
     "SECURITY.md",
     "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "README.en.md"
   ],
   "engines": {
     "node": ">=20"
@@ -48,6 +49,7 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "clean": "node scripts/clean.mjs",
     "build": "npm run clean && tsc",
     "pack:check": "npm run build && node scripts/check-pack.mjs",
@@ -68,6 +70,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
+    "@vitest/coverage-v8": "4.1.11",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
