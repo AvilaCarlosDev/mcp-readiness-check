@@ -6,7 +6,7 @@
 
 [![CI](https://github.com/AvilaCarlosDev/mcp-readiness-check/actions/workflows/ci.yml/badge.svg)](https://github.com/AvilaCarlosDev/mcp-readiness-check/actions/workflows/ci.yml)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-green.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20-42ffa1.svg)](package.json)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22.12-42ffa1.svg)](package.json)
 [![MCP](https://img.shields.io/badge/MCP-compatible-ff8c69.svg)](https://modelcontextprotocol.io/)
 
 MCP Readiness Check lanza un servidor por stdio, realiza un handshake MCP real, inventaría cada página de catálogo anunciada, valida los contratos de las herramientas, ejecuta una auditoría de seguridad estática y produce reportes revisables.
