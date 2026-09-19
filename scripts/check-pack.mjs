@@ -10,7 +10,7 @@ if (result.status !== 0) process.exit(result.status ?? 1);
 const parsed = JSON.parse(result.stdout);
 const packages = Array.isArray(parsed) ? parsed : Object.values(parsed);
 const files = new Set(packages.flatMap((entry) => entry.files.map((file) => file.path)));
-const requiredFiles = ["dist/cli.js", "README.md", "LICENSE", "SECURITY.md", "CHANGELOG.md", "report.example.md", "mcp-readiness.config.example.json"];
+const requiredFiles = ["dist/cli.js", "README.md", "README.en.md", "LICENSE", "SECURITY.md", "CHANGELOG.md", "report.example.md", "mcp-readiness.config.example.json"];
 const missing = requiredFiles.filter((file) => !files.has(file));
 const forbiddenFiles = ["dist/core/doctor.js", "dist/core/doctor.d.ts"];
 const stale = forbiddenFiles.filter((file) => files.has(file));
