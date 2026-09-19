@@ -146,6 +146,14 @@ The exit code separates three cases so a pipeline knows what to fix:
 
 Everything a server advertises (tool, resource and prompt names and descriptions, check messages, `stderr`) is treated as untrusted. Before it reaches the console or a Markdown report, control characters and text-reordering characters are shown as visible escapes (`\x1b`, `\u202e`) instead of being interpreted. This stops a hostile server from clearing the screen, changing the terminal title, writing to the clipboard (OSC 52) or faking report lines. In Markdown reports, links, HTML and code fences coming from the server are neutralized. The `--json` output keeps the original data, with JSON escaping.
 
+## Test status
+
+- **Automated in CI** (Ubuntu, Node 22 and 24): 94 tests with 94% coverage, against an example server and fixtures written by the author.
+- **Real third-party servers:** checked against 4 official `modelcontextprotocol` reference servers (all Node.js and from the same maintainer) with `npm run compat`.
+- **Not tested:** independent community servers, servers in Python or other languages, Windows and macOS, large catalogs, the quality of the security audit compared with other tools, and installing from npm (not published yet).
+
+The full detail, with results and limits, is in [docs/compatibility.md](docs/compatibility.md).
+
 ## Scope and limits
 
 - stdio transport only;
@@ -174,6 +182,7 @@ The README media was captured from a real Kitty session running the CLI. `npm ru
 ## Documentation
 
 - [English guide](docs/en/guide.md)
+- [Test status](docs/compatibility.md)
 - [Guía en español](docs/es/guia.md)
 - [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 

@@ -148,6 +148,14 @@ El código de salida distingue tres casos, para que un pipeline sepa qué arregl
 | `--markdown <ruta>` | — | Escribe un reporte en Markdown |
 | `--no-security-audit` | desactivado | Desactiva los hallazgos de seguridad estática |
 
+## Estado de las pruebas
+
+- **Automatizado en el CI** (Ubuntu, Node 22 y 24): 94 pruebas con 94 % de cobertura, contra un servidor de ejemplo y fixtures escritos por el autor.
+- **Servidores reales de terceros:** comprobado contra 4 servidores de referencia oficiales de `modelcontextprotocol` (todos en Node.js y del mismo mantenedor), con `npm run compat`.
+- **No probado:** servidores independientes de la comunidad, servidores en Python u otros lenguajes, Windows y macOS, catálogos grandes, la calidad de la auditoría de seguridad frente a otras herramientas ni la instalación desde npm (aún sin publicar).
+
+El detalle completo, con resultados y límites, está en [docs/compatibility.md](docs/compatibility.md).
+
 ## Alcance y límites
 
 - solo transporte stdio;
@@ -176,6 +184,7 @@ Los recursos multimedia del README se capturaron desde una sesión real de Kitty
 ## Documentación
 
 - [Guía en español](docs/es/guia.md)
+- [Estado de las pruebas](docs/compatibility.md)
 - [English guide](docs/en/guide.md)
 - [Contribuir](CONTRIBUTING.md) · [Política de seguridad](SECURITY.md) · [Código de conducta](CODE_OF_CONDUCT.md) · [Registro de cambios](CHANGELOG.md)
 
