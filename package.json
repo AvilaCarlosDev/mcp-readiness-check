@@ -57,7 +57,8 @@
     "dev": "tsx src/cli.ts",
     "lint": "tsc --noEmit",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build && npm test && node scripts/check-pack.mjs"
+    "prepublishOnly": "npm run build && npm test && node scripts/check-pack.mjs",
+    "compat": "npm run build && node scripts/compat.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

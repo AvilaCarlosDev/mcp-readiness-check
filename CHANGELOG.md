@@ -25,7 +25,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added / Añadido
 
-- 54 new tests (77 in total): configuration loading, the CLI exit-code contract, JSON/Markdown output, `init`, both reporters and terminal safety. / 54 pruebas nuevas (77 en total).
+- `npm run compat` and a weekly `Compatibility` workflow that check the tool against four official third-party reference servers pinned to exact versions, plus `docs/compatibility.md` stating what is and is not tested. / `npm run compat`, un flujo semanal `Compatibility` y `docs/compatibility.md`, que dice qué está y qué no está probado.
+
+- 71 new tests (94 in total): configuration loading, the CLI exit-code contract, JSON/Markdown output, `init`, both reporters and terminal safety. / 71 pruebas nuevas (94 en total).
 - Coverage measurement with enforced thresholds (`npm run test:coverage`). / Medición de cobertura con umbrales obligatorios.
 - CI: secret scanning (gitleaks), AI-watermark check and Dependabot for npm and GitHub Actions. / CI: escaneo de secretos, verificación de marcas de agua y Dependabot.
 - Spanish README (`README.md`) with the English one in `README.en.md`, code of conduct, and issue/PR templates. / README en español, código de conducta y plantillas.

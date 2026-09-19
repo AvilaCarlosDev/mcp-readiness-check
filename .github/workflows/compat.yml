@@ -1,0 +1,31 @@
+name: Compatibility
+
+# Comprueba la herramienta contra servidores MCP reales de terceros (versiones fijadas en
+# scripts/compat-servers.mjs). Usa la red y ejecuta código ajeno con `npx`, por eso no bloquea PR.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compat:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Run against third-party reference servers
+        run: npm run compat
