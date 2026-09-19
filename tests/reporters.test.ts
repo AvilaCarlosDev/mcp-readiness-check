@@ -94,9 +94,8 @@ describe("seguridad de la terminal: los metadatos del servidor no son de confian
 
 	it("la consola no emite ESC ni BEL provenientes del servidor", () => {
 		printConsoleReport(hostil);
-		const texto = consola().replace(/\u001b\[[0-9;]*m/g, ""); // colores propios de la herramienta
-		expect(texto).not.toContain(ESC);
-		expect(texto).not.toContain(BEL);
+		expect(consola()).not.toContain(ESC);
+		expect(consola()).not.toContain(BEL);
 	});
 
 	it("la consola deja visible qué se neutralizó en lugar de ocultarlo", () => {
