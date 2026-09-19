@@ -115,7 +115,13 @@ Redaction is defense in depth. Prefer environment variables or a secret manager,
 
 ## CI
 
-A failed check exits with code `1`; warnings do not fail the command.
+The exit code separates three cases so a pipeline knows what to fix:
+
+| Code | Meaning |
+|---|---|
+| `0` | No failed checks (warnings do not fail the command) |
+| `1` | The examined server has failed checks, does not start, or does not answer in time |
+| `2` | Incorrect usage or configuration (unknown option or subcommand, missing `--cmd`, invalid `--timeout`, missing or invalid config) or an internal error |
 
 ```yaml
 - name: Verify MCP readiness
