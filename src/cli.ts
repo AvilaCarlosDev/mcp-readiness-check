@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-import { createProgram } from "./program.js";
+import { run } from "./program.js";
 
-await createProgram().parseAsync(process.argv);
+process.exitCode = await run(process.argv);

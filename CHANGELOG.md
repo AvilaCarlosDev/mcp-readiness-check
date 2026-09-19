@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed / Cambiado
 
+- **Exit codes now separate usage errors from failed checks.** `2` is returned for incorrect usage or configuration (unknown option or subcommand, missing `--cmd`, invalid `--timeout`, missing or invalid config, refusing to overwrite in `init`) and for internal errors; `1` stays reserved for an examined server with failed checks, one that does not start or one that does not answer in time. Before, everything exited with `1`, so a CI could not tell "the server has a finding" from "the tool was invoked wrongly". Verified against the official reference servers (`server-everything`, `server-filesystem`, `server-memory`, `server-sequential-thinking`). The package is not published yet, so no released version changes behavior. / **Los códigos de salida distinguen los errores de uso de las comprobaciones fallidas**: `2` para uso o configuración incorrectos y errores internos; `1` solo para un servidor con fallos.
+
 - **Minimum Node.js is now 22.12** (was 20). `commander` 15 requires Node 22.12+, Vitest 5 requires 22.12, 24 or 26+, and Node 20 reached end of life on 2026-04-30. CI now tests Node 22 and 24. The package is not published yet, so no released version is affected. / **El mínimo de Node.js pasa a 22.12** (antes 20): `commander` 15 y Vitest 5 lo exigen y Node 20 ya está fuera de soporte. El CI prueba Node 22 y 24.
 - Dependencies updated together and verified as a set: `commander` 14→15, `@modelcontextprotocol/sdk` 1.29→1.30, `zod` 4.4→4.6, `ora` 9.4.0→9.4.1, and dev tooling `typescript` 6→7, `vitest` 4→5, `@types/node` 25→26, `tsx`. / Dependencias actualizadas y verificadas en conjunto.
 

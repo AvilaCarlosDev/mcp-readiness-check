@@ -121,7 +121,13 @@ Todo lo que un servidor anuncia (nombres y descripciones de herramientas, recurs
 
 ## CI
 
-Una comprobación fallida termina con código `1`; las advertencias no hacen fallar el comando.
+El código de salida distingue tres casos, para que un pipeline sepa qué arreglar:
+
+| Código | Significado |
+|---|---|
+| `0` | Sin comprobaciones fallidas (las advertencias no hacen fallar el comando) |
+| `1` | El servidor examinado tiene comprobaciones fallidas, no arranca o no responde a tiempo |
+| `2` | Uso o configuración incorrectos (opción o subcomando desconocido, falta `--cmd`, `--timeout` inválido, configuración ausente o inválida) o error interno |
 
 ```yaml
 - name: Verify MCP readiness

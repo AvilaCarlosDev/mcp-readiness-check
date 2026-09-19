@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createProgram } from "../src/program.js";
+import { EXIT_CODES, run } from "../src/program.js";
 
 const raiz = resolve(import.meta.dirname, "..");
 const version = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8")).version as string;
@@ -25,10 +25,9 @@ async function ejecutar(args: string[]) {
 	const errores: string[] = [];
 	const log = vi.spyOn(console, "log").mockImplementation((...a: unknown[]) => void salida.push(a.join(" ")));
 	const err = vi.spyOn(console, "error").mockImplementation((...a: unknown[]) => void errores.push(a.join(" ")));
-	process.exitCode = undefined;
 	try {
-		await createProgram().parseAsync(["node", "mcp-readiness-check", ...args]);
-		return { codigo: Number(process.exitCode ?? 0), salida: salida.join("\n"), error: errores.join("\n") };
+		const codigo = await run(["node", "mcp-readiness-check", ...args]);
+		return { codigo, salida: salida.join("\n"), error: errores.join("\n") };
 	} finally {
 		log.mockRestore();
 		err.mockRestore();
@@ -67,6 +66,30 @@ describe("binario real: el contrato de códigos de salida que usa el CI de quien
 		expect(r.codigo).toBe(1);
 	});
 
+	it("un uso incorrecto (falta --cmd) termina con código 2, distinto de un check fallido", () => {
+		const r = proceso(["check"]);
+		expect(r.codigo).toBe(2);
+		expect(r.error).toContain("Provide either --server from config or --cmd <command>.");
+	});
+
+	it("una opción desconocida termina con código 2 y lo explica", () => {
+		const r = proceso(["check", "--cmd", "node", "--bandera-falsa"]);
+		expect(r.codigo).toBe(2);
+		expect(r.error).toContain("unknown option '--bandera-falsa'");
+	});
+
+	it("un subcomando desconocido termina con código 2", () => {
+		const r = proceso(["comando-falso"]);
+		expect(r.codigo).toBe(2);
+		expect(r.error).toContain("unknown command 'comando-falso'");
+	});
+
+	it("--help termina con código 0 y describe los códigos de salida", () => {
+		const r = proceso(["--help"]);
+		expect(r.codigo).toBe(0);
+		expect(r.salida).toContain("Exit codes");
+	});
+
 	it("un servidor hostil no puede inyectar secuencias de escape en la terminal", () => {
 		const r = proceso(["check", "--cmd", "node", "--args", hostil]);
 		expect(r.salida).toContain("MCP Readiness Report");
@@ -87,21 +110,21 @@ describe("check: errores de uso", () => {
 		expect(r.salida + r.error).not.toBe("");
 	});
 
-	it("sin --cmd ni --server explica qué falta y termina con código 1", async () => {
+	it("sin --cmd ni --server explica qué falta y termina con código 2", async () => {
 		const r = await ejecutar(["check"]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("Provide either --server from config or --cmd <command>.");
 	});
 
-	it.each(["abc", "0", "-5"])("un --timeout inválido (%s) termina con código 1 y lo explica", async (valor) => {
+	it.each(["abc", "0", "-5"])("un --timeout inválido (%s) termina con código 2 y lo explica", async (valor) => {
 		const r = await ejecutar([...ejemplo, "--timeout", valor]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("--timeout must be a positive number of milliseconds.");
 	});
 
-	it("--server con un archivo de configuración inexistente termina con código 1", async () => {
+	it("--server con un archivo de configuración inexistente termina con código 2", async () => {
 		const r = await ejecutar(["check", "--server", "x", "--config", join(dir, "no-existe.json")]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("Config file not found");
 	});
 
@@ -109,7 +132,7 @@ describe("check: errores de uso", () => {
 		const config = join(dir, "c.json");
 		writeFileSync(config, JSON.stringify({ servers: { eco: { command: "node" } } }));
 		const r = await ejecutar(["check", "--server", "otro", "--config", config]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("Available: eco");
 	});
 
@@ -117,7 +140,7 @@ describe("check: errores de uso", () => {
 		const config = join(dir, "c.json");
 		writeFileSync(config, JSON.stringify({ servers: { eco: { args: [] } } }));
 		const r = await ejecutar(["check", "--server", "eco", "--config", config]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain(config);
 		expect(r.error).toContain("servers.eco.command");
 	});
@@ -126,7 +149,7 @@ describe("check: errores de uso", () => {
 		const config = join(dir, "c.json");
 		writeFileSync(config, JSON.stringify({ servers: { eco: { command: "node" } } }));
 		const r = await ejecutar(["check", "--server", "constructor", "--config", config]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("not found in config");
 	});
 });
@@ -199,7 +222,7 @@ describe("init", () => {
 		const destino = join(dir, "mi.config.json");
 		writeFileSync(destino, "contenido original");
 		const r = await ejecutar(["init", "--output", destino]);
-		expect(r.codigo).toBe(1);
+		expect(r.codigo).toBe(EXIT_CODES.usage);
 		expect(r.error).toContain("Refusing to overwrite");
 		expect(readFileSync(destino, "utf8")).toBe("contenido original");
 	});

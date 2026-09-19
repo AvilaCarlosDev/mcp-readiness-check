@@ -1,5 +1,5 @@
 import { existsSync, writeFileSync } from "node:fs";
-import { Command } from "commander";
+import { Command, CommanderError } from "commander";
 import ora from "ora";
 import { runReadinessCheck } from "./core/readiness.js";
 import { targetFromCommand, targetFromConfig } from "./core/config.js";
@@ -7,12 +7,22 @@ import { printConsoleReport } from "./reporters/console.js";
 import { toMarkdown } from "./reporters/markdown.js";
 import { packageVersion } from "./utils/package.js";
 
+/**
+ * Códigos de salida, pensados para el CI de quien adopte la herramienta:
+ * 0 = sin fallos; 1 = el servidor examinado tiene comprobaciones fallidas;
+ * 2 = uso o configuración incorrectos, o un error de la propia herramienta.
+ */
+export const EXIT_CODES = { ok: 0, failed: 1, usage: 2 } as const;
+
 export function createProgram(): Command {
 	const program = new Command();
+	// Los errores de commander (opción o subcomando desconocido) llegan a run() en vez de salir con 1.
+	program.exitOverride();
 
 	program
 		.name("mcp-readiness-check")
 		.description("Verify MCP server readiness: capabilities, catalogs, schemas, static security, and reports.")
+		.addHelpText("after", "\nExit codes:\n  0  no failed checks\n  1  the server has failed checks\n  2  usage or configuration error, or an internal error")
 		.version(packageVersion());
 
 	program
@@ -58,10 +68,10 @@ export function createProgram(): Command {
 					if (options.markdown) console.log(`Markdown report written to: ${options.markdown}`);
 				}
 
-				process.exitCode = report.summary.failed > 0 ? 1 : 0;
+				process.exitCode = report.summary.failed > 0 ? EXIT_CODES.failed : EXIT_CODES.ok;
 			} catch (error) {
 				console.error(error instanceof Error ? error.message : String(error));
-				process.exitCode = 1;
+				process.exitCode = EXIT_CODES.usage;
 			}
 		});
 
@@ -73,7 +83,7 @@ export function createProgram(): Command {
 		.action((options) => {
 			if (existsSync(options.output) && !options.force) {
 				console.error(`Refusing to overwrite existing file: ${options.output}. Use --force to replace it.`);
-				process.exitCode = 1;
+				process.exitCode = EXIT_CODES.usage;
 				return;
 			}
 			const example = {
@@ -90,4 +100,17 @@ export function createProgram(): Command {
 		});
 
 	return program;
+}
+
+/** Ejecuta el programa y devuelve el código de salida, sin terminar el proceso. */
+export async function run(argv: string[]): Promise<number> {
+	process.exitCode = undefined;
+	try {
+		await createProgram().parseAsync(argv);
+	} catch (error) {
+		if (!(error instanceof CommanderError)) throw error;
+		// --help y --version también llegan aquí, con exitCode 0.
+		return error.exitCode === 0 ? EXIT_CODES.ok : EXIT_CODES.usage;
+	}
+	return Number(process.exitCode ?? EXIT_CODES.ok);
 }
