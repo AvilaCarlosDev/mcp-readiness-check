@@ -4,6 +4,8 @@ export default defineConfig({
 	test: {
 		// Las pruebas del CLI arrancan procesos reales de Node y de servidores MCP.
 		testTimeout: 30_000,
+		// Sin colores ANSI propios: así cualquier ESC en la salida es un fallo, también con CI=true.
+		env: { NO_COLOR: "1" },
 		coverage: {
 			provider: "v8",
 			include: ["src/**"],
