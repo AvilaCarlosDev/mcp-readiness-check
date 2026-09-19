@@ -23,13 +23,26 @@ export function loadConfig(path = "mcp-readiness.config.json"): ReadinessConfig 
 		throw new Error(`Config file not found: ${fullPath}`);
 	}
 
-	const raw = JSON.parse(readFileSync(fullPath, "utf8"));
-	return ConfigSchema.parse(raw);
+	let raw: unknown;
+	try {
+		raw = JSON.parse(readFileSync(fullPath, "utf8"));
+	} catch (error) {
+		const detalle = error instanceof Error ? error.message : String(error);
+		throw new Error(`Invalid config ${fullPath}: not valid JSON (${detalle})`);
+	}
+
+	const resultado = ConfigSchema.safeParse(raw);
+	if (!resultado.success) {
+		const problemas = resultado.error.issues.map((issue) => `  - ${issue.path.join(".") || "(root)"}: ${issue.message}`);
+		throw new Error(`Invalid config ${fullPath}:\n${problemas.join("\n")}`);
+	}
+	return resultado.data;
 }
 
 export function targetFromConfig(serverName: string, configPath?: string): ServerTarget {
 	const config = loadConfig(configPath);
-	const server = config.servers[serverName];
+	// hasOwn evita que nombres como "constructor" o "toString" se lean como servidores.
+	const server = Object.hasOwn(config.servers, serverName) ? config.servers[serverName] : undefined;
 	if (!server) {
 		const available = Object.keys(config.servers).join(", ") || "none";
 		throw new Error(`Server '${serverName}' not found in config. Available: ${available}`);
