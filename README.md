@@ -11,14 +11,7 @@
 
 MCP Readiness Check lanza un servidor por stdio, realiza un handshake MCP real, inventaría cada página de catálogo anunciada, valida los contratos de las herramientas, ejecuta una auditoría de seguridad estática y produce reportes revisables.
 
-![MCP Readiness Check ejecutándose contra su servidor de ejemplo](docs/assets/mcp-readiness-check-demo.png)
-
-<details>
-<summary>Ver la demostración del CLI</summary>
-
 ![Demostración animada del CLI de MCP Readiness Check](docs/assets/mcp-readiness-check-demo.gif)
-
-</details>
 
 ## Comprobaciones verificadas
 
