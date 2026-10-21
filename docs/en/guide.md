@@ -16,17 +16,14 @@ Supported schema dialects are draft-07, 2019-09, and 2020-12. Unsupported dialec
 
 ## Installation
 
-```bash
-npm install --global @avilacarlosdev/mcp-readiness-check
-```
-
-For local development:
+The package is not published on npm yet. Install it from source:
 
 ```bash
 git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
 cd mcp-readiness-check
 npm ci
 npm run build
+npm link
 ```
 
 ## Usage

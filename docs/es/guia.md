@@ -16,17 +16,14 @@ Los dialectos soportados son draft-07, 2019-09 y 2020-12. Un dialecto no soporta
 
 ## Instalación
 
-```bash
-npm install --global @avilacarlosdev/mcp-readiness-check
-```
-
-Para desarrollo local:
+El paquete todavía no está publicado en npm. Instálalo desde el código:
 
 ```bash
 git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
 cd mcp-readiness-check
 npm ci
 npm run build
+npm link
 ```
 
 ## Uso

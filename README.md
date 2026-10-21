@@ -35,16 +35,20 @@ MCP Readiness Check lanza un servidor por stdio, realiza un handshake MCP real, 
 
 ## Instalación
 
+Todavía no está publicado en npm. Por ahora se instala desde el código (requiere Node.js 22.12 o superior):
+
 ```bash
-npm install --global @avilacarlosdev/mcp-readiness-check
+git clone https://github.com/AvilaCarlosDev/mcp-readiness-check.git
+cd mcp-readiness-check
+npm ci
+npm run build
+npm link
 ```
 
-El paquete es `@avilacarlosdev/mcp-readiness-check`; el ejecutable instalado es `mcp-readiness-check`.
-
-Ejecutarlo sin instalación global:
+`npm link` deja disponible el ejecutable `mcp-readiness-check`. Para ejecutarlo sin enlazarlo:
 
 ```bash
-npx @avilacarlosdev/mcp-readiness-check --help
+node dist/cli.js --help
 ```
 
 ## Inicio rápido
